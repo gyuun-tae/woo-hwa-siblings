@@ -5,12 +5,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User } from "lucide-react";
 import { useSessionManager } from "@/hooks/useSessionManager";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { mockChat } from "@/lib/mockApi";
 import { ChatTurn } from "@/types/session";
 import { cn } from "@/lib/utils";
 
-// 강제 리빌드를 위한 버전 식별자 v3.0
-const CHAT_VERSION = "3.0";
+// 강제 리빌드를 위한 버전 식별자 v3.2
+const CHAT_VERSION = "3.2";
 
 interface ChatInterfaceProps {
   sessionId: string;
@@ -53,7 +53,7 @@ export const ChatInterface = ({ sessionId }: ChatInterfaceProps) => {
     console.log(`메시지 전송 시작 - v${CHAT_VERSION}:`, userMessage);
 
     try {
-      // 사용자 메시지 추가
+      // 사용자 메시지 추가 (즉시 저장)
       console.log("사용자 메시지 추가 중...");
       addTurn(sessionId, {
         role: 'user',
@@ -61,19 +61,8 @@ export const ChatInterface = ({ sessionId }: ChatInterfaceProps) => {
       });
 
       console.log("AI 응답 요청 중...");
-      // AI 응답 요청
-      const { data, error } = await supabase.functions.invoke('chat', {
-        body: {
-          message: userMessage,
-          storyContext: currentSession.title,
-          conversationHistory: currentSession.turns.slice(-6) // 최근 6개 턴만 전송
-        }
-      });
-
-      if (error) {
-        console.error("AI 응답 에러:", error);
-        throw error;
-      }
+      // Mock AI 응답 요청
+      const data = await mockChat(userMessage, currentSession.title, currentSession.turns.slice(-6));
 
       console.log("AI 응답 수신:", data);
       // AI 응답 추가
@@ -82,9 +71,9 @@ export const ChatInterface = ({ sessionId }: ChatInterfaceProps) => {
         content: data.reply
       });
 
-      console.log("메시지 전송 완료 - v3.0");
+      console.log("메시지 전송 완료 - v3.2");
     } catch (error: any) {
-      console.error('메시지 전송 실패 - v3.0:', error);
+      console.error('메시지 전송 실패 - v3.2:', error);
       
       // 네트워크 오류인 경우 자동 재시도 (최대 2회)
       if (retryCount < 2 && (error.message?.includes('fetch') || error.message?.includes('network'))) {
@@ -124,13 +113,13 @@ export const ChatInterface = ({ sessionId }: ChatInterfaceProps) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      console.log("Enter 키로 메시지 전송 - v3.0");
+      console.log("Enter 키로 메시지 전송 - v3.2");
       handleSendMessage();
     }
   };
 
   if (!currentSession) {
-    console.error("세션을 찾을 수 없음 - v3.0");
+    console.error("세션을 찾을 수 없음 - v3.2");
     return (
       <div className="flex items-center justify-center h-full">
         <p className="text-muted-foreground">세션을 찾을 수 없습니다. (v{CHAT_VERSION})</p>
@@ -148,7 +137,12 @@ export const ChatInterface = ({ sessionId }: ChatInterfaceProps) => {
           </div>
           
           {currentSession.turns.map((turn) => (
-            <ChatMessage key={turn.id} turn={turn} />
+            <div key={turn.id} className={cn(
+              "flex",
+              turn.role === 'user' ? "justify-end" : "justify-start"
+            )}>
+              <ChatMessage turn={turn} />
+            </div>
           ))}
           
           {/* 로딩 중일 때 표시 */}

@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { useSessionManager } from "@/hooks/useSessionManager";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, BookOpen, Menu } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { mockStartSession } from "@/lib/mockApi";
 import { ChatInterface } from "@/components/ChatInterface";
 import { Sidebar } from "@/components/Sidebar";
 
-// 강제 리빌드를 위한 버전 식별자 v3.0
-const APP_VERSION = "3.0";
+// 강제 리빌드를 위한 버전 식별자 v3.2
+const APP_VERSION = "3.2";
 
 const Index = () => {
   const [isStarting, setIsStarting] = useState(false);
@@ -19,25 +19,20 @@ const Index = () => {
   console.log(`앱 시작됨 - 버전 ${APP_VERSION}`);
 
   const handleStartSession = async () => {
-    console.log("세션 시작 요청 - v3.0");
+    console.log("세션 시작 요청 - v3.2");
     setIsStarting(true);
     
     try {
-      // Supabase Edge Function 호출
-      console.log("Edge Function 호출 중...");
-      const { data, error } = await supabase.functions.invoke('start-session');
+      // Mock API 호출 (Supabase Edge Function 대신)
+      console.log("Mock API 호출 중...");
+      const data = await mockStartSession();
       
-      if (error) {
-        console.error("Edge Function 에러:", error);
-        throw error;
-      }
+      console.log("Mock API 응답:", data);
 
-      console.log("Edge Function 응답:", data);
-
-      // 세션 생성
-      const { sessionId, storyId, title, firstQuestion } = data;
+      // 세션 생성 (이전 세션을 백엔드에 저장)
+      const { storyId, title, firstQuestion } = data;
       
-      createSession(
+      await createSession(
         { id: storyId, title: title.replace('만약에: ', ''), summary: '', keyScenes: [], whatIfSeeds: [] },
         firstQuestion
       );
@@ -60,21 +55,29 @@ const Index = () => {
   };
 
   const handleNewChat = async () => {
-    console.log("새 대화 요청 - v3.0");
+    console.log("새 대화 요청 - v3.2");
     
     // 현재 대화가 있다면 저장되었음을 알림
     if (currentSession && currentSession.turns.length > 1) {
       toast({
         title: "이전 대화를 저장했어요",
-        description: "새로운 이야기를 시작할게요!",
+        description: "백엔드에 동기화하고 새로운 이야기를 시작할게요!",
       });
     }
     
     setIsSidebarOpen(false);
     
     try {
+      // 현재 세션을 백엔드에 저장하고 새 세션 생성
+      console.log("새 대화 시작 중...");
       await handleStartSession();
-      console.log("새 대화 생성 완료 - v3.0");
+      console.log("새 대화 생성 완료 - v3.2");
+      
+      // 성공 알림
+      toast({
+        title: "새로운 이야기 시작!",
+        description: "새로운 동화로 상상 여행을 떠나보세요!",
+      });
     } catch (error) {
       console.error("새 대화 생성 실패:", error);
       toast({
@@ -96,7 +99,7 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden bg-gradient-story flex">
+    <div className="h-screen max-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex">
       {/* 사이드바 */}
       <Sidebar
         isOpen={isSidebarOpen}

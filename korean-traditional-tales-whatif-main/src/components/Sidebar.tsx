@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSessionManager } from "@/hooks/useSessionManager";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
-// 강제 리빌드를 위한 버전 식별자 v3.0
-const SIDEBAR_VERSION = "3.0";
+// 강제 리빌드를 위한 버전 식별자 v3.2
+const SIDEBAR_VERSION = "3.2";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ isOpen, onClose, onNewChat }: SidebarProps) => {
   const { sessions, currentSessionId, switchToSession, deleteSession } = useSessionManager();
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
   
   console.log(`사이드바 렌더링 - 버전 ${SIDEBAR_VERSION}, 열림상태: ${isOpen}`);
 
@@ -48,13 +50,35 @@ export const Sidebar = ({ isOpen, onClose, onNewChat }: SidebarProps) => {
   };
 
   const handleNewChatClick = () => {
-    console.log("새 대화 버튼 클릭 - v3.0");
+    console.log("새 대화 버튼 클릭 - v3.2");
     onNewChat();
   };
 
   const handleCloseClick = () => {
-    console.log("닫기 버튼 클릭 - v3.0");
+    console.log("닫기 버튼 클릭 - v3.2");
     onClose();
+  };
+
+  const handleSessionClick = (sessionId: string) => {
+    console.log("세션 클릭:", sessionId);
+    switchToSession(sessionId);
+    onClose(); // 세션 선택 후 사이드바 닫기
+  };
+
+  const handleDeleteSession = async (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log("세션 삭제 요청 - v3.2:", sessionId);
+    
+    setDeletingSessionId(sessionId);
+    
+    try {
+      await deleteSession(sessionId);
+      console.log("세션 삭제 완료 - v3.2:", sessionId);
+    } catch (error) {
+      console.error("세션 삭제 실패 - v3.2:", error);
+    } finally {
+      setDeletingSessionId(null);
+    }
   };
 
   return (
@@ -126,10 +150,7 @@ export const Sidebar = ({ isOpen, onClose, onNewChat }: SidebarProps) => {
                         ? "bg-primary/10 border-primary/20 shadow-sm"
                         : "border-transparent hover:border-border"
                     )}
-                    onClick={() => {
-                      console.log("세션 클릭:", session.id);
-                      switchToSession(session.id);
-                    }}
+                    onClick={() => handleSessionClick(session.id)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
@@ -146,17 +167,25 @@ export const Sidebar = ({ isOpen, onClose, onNewChat }: SidebarProps) => {
                         )}
                       </div>
                       
+                      {/* 삭제 버튼 - 호버 시 표시 */}
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log("세션 삭제:", session.id);
-                          deleteSession(session.id);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity ml-2 h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => handleDeleteSession(session.id, e)}
+                        disabled={deletingSessionId === session.id}
+                        className={cn(
+                          "opacity-0 group-hover:opacity-100 transition-all duration-200 ml-2 h-6 w-6 p-0",
+                          deletingSessionId === session.id
+                            ? "text-muted-foreground cursor-not-allowed"
+                            : "text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        )}
+                        title="대화 삭제"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        {deletingSessionId === session.id ? (
+                          <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3 h-3" />
+                        )}
                       </Button>
                     </div>
                   </div>
