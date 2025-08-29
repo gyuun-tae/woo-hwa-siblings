@@ -49,7 +49,145 @@
 - 세션 전환 시 즉시 반영
 - 안정적인 데이터 지속성
 
-이제 네이버 클라우드 API 키만 설정하면 바로 사용 가능합니다!
+## 🚀 **로컬 실행 방법**
+
+### **중요: 올바른 디렉토리에서 실행하기**
+
+이 프로젝트는 **중첩된 폴더 구조**를 가지고 있습니다. 반드시 올바른 디렉토리에서 실행해야 합니다.
+
+#### **올바른 디렉토리 구조**
+```
+Downloads/
+└── korean-traditional-tales-whatif-main/
+    └── korean-traditional-tales-whatif-main/  ← 여기서 npm 실행!
+        ├── package.json
+        ├── src/
+        ├── public/
+        └── ...
+```
+
+#### **실행 방법 1: 수동으로 디렉토리 이동**
+```bash
+# 1단계: Downloads 폴더로 이동
+cd C:\Users\국윤태\Downloads
+
+# 2단계: 프로젝트 폴더로 이동
+cd korean-traditional-tales-whatif-main\korean-traditional-tales-whatif-main
+
+# 3단계: package.json 확인
+dir package.json
+
+# 4단계: 개발 서버 실행
+npm run dev
+```
+
+#### **실행 방법 2: 자동화 스크립트 사용 (권장)**
+```powershell
+# PowerShell에서 스크립트 실행
+.\start-dev.ps1
+```
+
+**⚠️ 스크립트 실행이 안 될 경우 (PowerShell 정책 설정)**
+```powershell
+# 관리자 권한으로 PowerShell 실행 후
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# 또는 더 간단하게
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+```
+
+#### **실행 방법 3: 직접 명령어 실행**
+```bash
+# 한 번에 올바른 디렉토리로 이동하고 실행
+cd C:\Users\국윤태\Downloads\korean-traditional-tales-whatif-main\korean-traditional-tales-whatif-main && npm run dev
+```
+
+### **🚨 자주 발생하는 에러와 해결 방법**
+
+#### **에러 1: "Could not read package.json"**
+```
+npm error code ENOENT
+npm error syscall open
+npm error path C:\Users\...\package.json
+npm error errno -4058
+npm error enoent Could not read package.json
+```
+
+**원인**: 잘못된 디렉토리에서 `npm run dev` 실행
+
+**해결 방법**:
+1. 현재 디렉토리 확인: `pwd` 또는 `Get-Location`
+2. 올바른 디렉토리로 이동: `cd korean-traditional-tales-whatif-main\korean-traditional-tales-whatif-main`
+3. `package.json` 파일 존재 확인: `dir package.json`
+4. 개발 서버 실행: `npm run dev`
+
+#### **에러 2: "npm is not recognized"**
+**원인**: Node.js가 설치되지 않음
+
+**해결 방법**:
+1. [Node.js 공식 사이트](https://nodejs.org/)에서 LTS 버전 다운로드
+2. 설치 후 터미널 재시작
+3. 설치 확인: `node --version` 및 `npm --version`
+
+#### **에러 3: "Module not found"**
+**원인**: 의존성이 설치되지 않음
+
+**해결 방법**:
+```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
+npm run dev
+```
+
+### **✅ 성공적인 실행 확인 방법**
+
+1. **올바른 디렉토리 확인**
+   ```bash
+   dir package.json
+   # package.json 파일이 보여야 함
+   ```
+
+2. **개발 서버 실행**
+   ```bash
+   npm run dev
+   ```
+
+3. **성공 메시지 확인**
+   ```
+   VITE v5.4.19  ready in XXX ms
+   ➜  Local:   http://localhost:8080/
+   ```
+
+4. **브라우저에서 접속**
+   - http://localhost:8080/ 으로 접속
+   - "만약에...? v3.2" 화면이 표시되어야 함
+
+### **🔧 문제 해결 도구**
+
+#### **디버깅 체크리스트**
+- [ ] 현재 디렉토리에 `package.json` 파일이 있는지 확인
+- [ ] 올바른 프로젝트 폴더인지 확인
+- [ ] Node.js와 npm이 설치되어 있는지 확인
+- [ ] 의존성이 설치되어 있는지 확인 (`npm install` 실행)
+
+#### **유용한 명령어**
+```bash
+# 현재 디렉토리 확인
+pwd                    # Linux/Mac
+Get-Location          # Windows PowerShell
+
+# 파일 목록 확인
+ls                     # Linux/Mac
+dir                    # Windows
+
+# 디렉토리 이동
+cd 폴더명
+
+# 상위 디렉토리로 이동
+cd ..
+```
 
 ## Project info
 

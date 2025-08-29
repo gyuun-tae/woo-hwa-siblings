@@ -13,7 +13,7 @@ const APP_VERSION = "3.2";
 const Index = () => {
   const [isStarting, setIsStarting] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { createSession, currentSession } = useSessionManager();
+  const { createSession, currentSession, forceReset } = useSessionManager();
   const { toast } = useToast();
 
   console.log(`앱 시작됨 - 버전 ${APP_VERSION}`);
@@ -78,6 +78,13 @@ const Index = () => {
         title: "새로운 이야기 시작!",
         description: "새로운 동화로 상상 여행을 떠나보세요!",
       });
+      
+      // 강제 초기화로 새로운 대화 즉시 시작
+      setTimeout(() => {
+        console.log("강제 초기화 시작 - v3.2");
+        forceReset();
+      }, 300);
+      
     } catch (error) {
       console.error("새 대화 생성 실패:", error);
       toast({

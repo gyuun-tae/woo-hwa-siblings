@@ -79,4 +79,50 @@ const updatedSessions = [
 - TypeScript 타입 정의 필수
 - 에러 처리 및 로깅 추가
 
+## 🚨 **에러 방지 규칙 (NEW!)**
+
+### **npm 실행 시 주의사항**
+- **절대 금지**: 잘못된 디렉토리에서 `npm run dev` 실행
+- **올바른 디렉토리**: `korean-traditional-tales-whatif-main/korean-traditional-tales-whatif-main/` 폴더에서만 실행
+- **확인 방법**: `package.json` 파일이 있는 디렉토리인지 확인
+
+### **디렉토리 구조**
+```
+Downloads/
+└── korean-traditional-tales-whatif-main/
+    └── korean-traditional-tales-whatif-main/  ← 여기서 npm 실행!
+        ├── package.json
+        ├── src/
+        ├── public/
+        └── ...
+```
+
+### **에러 발생 시 해결 방법**
+1. **현재 위치 확인**: `pwd` 또는 `Get-Location` 명령어로 현재 디렉토리 확인
+2. **올바른 디렉토리로 이동**: `cd korean-traditional-tales-whatif-main/korean-traditional-tales-whatif-main`
+3. **package.json 존재 확인**: `ls package.json` 또는 `dir package.json`
+4. **개발 서버 실행**: `npm run dev`
+
+### **자동화 스크립트 (권장)**
+```bash
+# Windows PowerShell
+function Start-DevServer {
+    $targetDir = "C:\Users\$env:USERNAME\Downloads\korean-traditional-tales-whatif-main\korean-traditional-tales-whatif-main"
+    if (Test-Path "$targetDir\package.json") {
+        Set-Location $targetDir
+        npm run dev
+    } else {
+        Write-Error "올바른 디렉토리를 찾을 수 없습니다: $targetDir"
+    }
+}
+
+# 사용법: Start-DevServer
+```
+
+## 🔍 **디버깅 체크리스트**
+- [ ] 현재 디렉토리에 `package.json` 파일이 있는지 확인
+- [ ] 올바른 프로젝트 폴더인지 확인
+- [ ] Node.js와 npm이 설치되어 있는지 확인
+- [ ] 의존성이 설치되어 있는지 확인 (`npm install` 실행)
+
 이 룰을 따라 코드를 작성하면 일관성 있고 안정적인 애플리케이션이 됩니다!

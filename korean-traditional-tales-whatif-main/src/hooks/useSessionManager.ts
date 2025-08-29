@@ -20,6 +20,21 @@ export const useSessionManager = () => {
     setForceUpdate(prev => prev + 1);
   }, []);
 
+  // 강제 초기화 함수 (새 대화 시작 시 사용)
+  const forceReset = useCallback(() => {
+    console.log('강제 초기화 시작 - v3.2');
+    setForceUpdate(prev => prev + 1);
+    
+    // localStorage 키 강제 업데이트
+    const newKey = `force-reset-${Date.now()}`;
+    try {
+      localStorage.setItem('force-reset-key', newKey);
+      console.log('강제 초기화 키 설정 완료 - v3.2');
+    } catch (error) {
+      console.error('강제 초기화 키 설정 실패 - v3.2:', error);
+    }
+  }, []);
+
   // 초기 로드
   useEffect(() => {
     const loadData = () => {
@@ -59,9 +74,11 @@ export const useSessionManager = () => {
 
     // storage 이벤트 리스너 (다른 탭에서의 변경 감지)
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === SESSIONS_STORAGE_KEY || e.key === CURRENT_SESSION_KEY) {
+      if (e.key === SESSIONS_STORAGE_KEY || e.key === CURRENT_SESSION_KEY || e.key === 'force-reset-key' || e.key === 'session-update') {
         console.log('Storage 변경 감지 - v3.2:', e.key);
         loadData();
+        // 강제 리렌더링 추가
+        forceRerender();
       }
     };
 
@@ -178,6 +195,18 @@ export const useSessionManager = () => {
     
     // 강제 리렌더링으로 UI 즉시 업데이트
     forceRerender();
+    
+    // 추가 강제 초기화
+    setTimeout(() => {
+      console.log('추가 강제 초기화 실행 - v3.2');
+      forceRerender();
+      // localStorage 키 강제 업데이트
+      try {
+        localStorage.setItem('session-update', Date.now().toString());
+      } catch (error) {
+        console.error('추가 강제 초기화 실패 - v3.2:', error);
+      }
+    }, 100);
     
     console.log('새 세션 생성 완료 - v3.2:', sessionId);
     return sessionId;
@@ -322,6 +351,7 @@ export const useSessionManager = () => {
     createSession,
     switchToSession,
     addTurn,
-    deleteSession
+    deleteSession,
+    forceReset // 강제 초기화 함수 추가
   };
 };
